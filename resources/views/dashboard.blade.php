@@ -32,12 +32,13 @@
         <p id="familyHeader">
             {{ ("Family Totals Month to Date")}}
         </p>
-@forelse($families as $family)
-@php
+        @php
 $i=0;
 @endphp
+@forelse($families as $family)
+
 <p>
-    {{ ($family->name." $".$familyTotals[0])}}
+    {{ ($family->name." $".$familyTotals[$i])}}
 </p>
 @php
 $i++;

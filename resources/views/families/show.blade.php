@@ -30,6 +30,11 @@
 {{ ('Back to Families') }}
         </a>
     </td>
+    <td>
+        <a href = "{{ route('familyusers.index', $family) }}">
+{{ ('View/Manage Members') }}
+        </a>
+    </td>
 </tr>
 </table>
 </div>

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Family;
 use App\Models\FamilyUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 
 class FamilyUserController extends Controller
 {
@@ -14,9 +16,16 @@ class FamilyUserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-public function index() 
+public function index(Request $request) 
 {
-//
+        $keys = $request->keys();
+        $id = $keys[0];
+        $family = Family::where('id', '=', $id)->get();
+        
+                        return view('familyusers.index', [
+'familyUsers' => $family[0]->users()->get(),
+'family' => $family[0],
+        ]);
     }
 
     /**
@@ -39,17 +48,19 @@ public function index()
     {
         $name = $request->input('name');
         $password = $request->input('password');
-        $family = Family::all()->where('name', '=', $name)->where('password', '=', $password);
+        $family = Family::where('name', '=', $name)->where('password', '=', $password)->get();
         if (count($family) === 1) {
             $familyMember = [
-                'family_id' => $family->id,
+                'family_id' => $family[0]->id,
                 'user_id' => auth()->user()->id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
             DB::table('family_users')->insert($familyMember);
+            return redirect(route('families.index'));
+        }else{
+            return back()->withInput()->withErrors('Family does not exist or password is incorrect');
         }
-        return redirect(route('families.index'));
     }
 
     /**
@@ -92,8 +103,10 @@ public function index()
      * @param  \App\Models\FamilyUser  $familyUser
      * @return \Illuminate\Http\Response
      */
-    public function destroy(FamilyUser $familyUser)
+    public function destroy(User $familyuser, Request $request)
     {
-        //
+        $family = $request->query('family');
+                        DB::table('family_users')->where('family_id', '=', $family)->where('user_id', '=', $familyuser->id)->delete();
+                return redirect(route('families.index'));
     }
 }

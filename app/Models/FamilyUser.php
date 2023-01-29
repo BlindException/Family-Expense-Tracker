@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Relations\Pivot;
+
 
 class FamilyUser extends Pivot
 {
+    protected $table = "family_users";
     protected $fillable = [
         'family_id',
         'user_id',

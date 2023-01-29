@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Family;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\StoreFamilyRequest;
 use App\Http\Requests\UpdateFamilyRequest;
 
@@ -41,6 +42,7 @@ class FamilyController extends Controller
     {
         $user = auth()->user();
         $validated = $request->validated();
+        $validated['password'] = Crypt::encryptString($request->validated('password'));
                                                                                                     $user->createdFamilies()->create($validated);
         $familyMember = [
                         'family_id' => $user->latestCreatedFamily->id,
@@ -93,7 +95,9 @@ class FamilyController extends Controller
     public function update(UpdateFamilyRequest $request, Family $family)
     {
         $this->authorize('update', $family);
+
         $validated = $request->validated();
+        $validated['password'] = Crypt::encryptString($request->validated('password'));
         $family->update($validated);
         return redirect(route('families.index'));
     }
@@ -107,6 +111,8 @@ class FamilyController extends Controller
     public function destroy(Family $family)
     {
         $this->authorize('delete', $family);
+        DB::table('family_users')->where('family_id', '=', $family->id)->delete();
+        DB::table('transactions')->where('owner_type', '=', 'App\Models\Family')->where('owner_id', '=', $family->id)->delete();
         $family->delete();
         return redirect(route('families.index'));
     }

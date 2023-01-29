@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreFamilyRequest extends FormRequest
@@ -23,8 +25,9 @@ class StoreFamilyRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(Request $request)
     {
+        Crypt::encryptString($request->input('password'));
         return [
             'name' => ['required', 'string', 'unique:families', 'max:255'],
             'password' => ['required', 'string', 'max:255'],

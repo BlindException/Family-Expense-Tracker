@@ -3,6 +3,15 @@
     <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
         {{ ("Join Family") }}
     </h2>
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
     <form method="POST" action="{{ route('familyusers.store') }}">
     @csrf
     <label class = "block font-medium text-sm text-gray-700 dark:text-gray-300" for = "joinFamilyName">

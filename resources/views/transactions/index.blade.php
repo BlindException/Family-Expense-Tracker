@@ -28,7 +28,11 @@
             {{ ($transaction->amount) }}
         </td>
         <td>
-            {{ ($transaction->paid_at) }}
+            @php
+            $date = new Datetime($transaction->paid_at);
+            $date = date_format($date, 'M. d Y');
+            @endphp
+            {{ ($date) }}
         </td>
         <td>
             {{ ($transaction->owner->name) }}

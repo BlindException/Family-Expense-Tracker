@@ -22,31 +22,36 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
+Route::get('/dashboard', function () 
+{
     $first_day_this_month = date('Y-m-01 00:00:00');
         $today = now();
         $user = auth()->user();
-        $userSum = $user->transactions()->get()->sum("amount");
-        $familySum = 0;
+        $userSum = $user->transactions()->whereBetween('paid_at', [$first_day_this_month, $today])->get()->sum("amount");
     $families = $user->families()->get();
-    $familyTotals = array();
-    $memberPortion = 0;
+    $allFamilySum = 0;
+            $familyTotals = array();
+            $memberPortion = 0;
     foreach($families as $family)
     {
-        if(count($family->transactions()->get())>0)
+        if(count($family->transactions()->get())<=0)
         {
-            $famSum = $family->transactions()->get()->sum("amount");
-            $count = count($family->users);
-            $memberPortion += $famSum / $count;
+            $famSum = 0;
+        }else{
+                                    $famSum = $family->transactions()->whereBetween('paid_at', [$first_day_this_month, $today])->get()->sum("amount");
+                           }
+                           $count = count($family->users);
+            $famPortion = $famSum / $count;
+            $memberPortion += $famPortion;
             array_push($familyTotals, $famSum);
-            $familySum += $famSum;
-        }
+            $allFamilySum+= $famSum;
     }
-    return view('dashboard', [
+        return view('dashboard', [
         'userSum' => $userSum,
         'families' => $families,
         'familyTotals' => $familyTotals,
-'familyTotal' => $familySum,
+        
+'familyTotal' => $allFamilySum,
 'familyPortion' => $memberPortion,
 'allTotal' => $memberPortion + $userSum,
     ]);
@@ -60,7 +65,7 @@ Route::resource('families', FamilyController::class)
 ->middleware(['auth', 'verified']);
 
 Route::resource('familyusers', FamilyUserController::class)
-->only([ 'create', 'store'])
+->only(['index', 'create', 'store', 'destroy'])
 ->middleware(['auth', 'verified']);
 
 
