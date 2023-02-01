@@ -8,6 +8,7 @@ use App\Models\FamilyUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
+use App\Http\Requests\StoreFamilyUserRequest;
 
 class FamilyUserController extends Controller
 {
@@ -18,14 +19,15 @@ class FamilyUserController extends Controller
      */
 public function index(Request $request) 
 {
-        $keys = $request->keys();
-        $id = $keys[0];
-        $family = Family::where('id', '=', $id)->get();
+//        $keys = $request->keys();
+        //$id = $keys;
+        //$family = Family::where('id', '=', $id)->with(['users'])->get();
         
-                        return view('familyusers.index', [
-'familyUsers' => $family[0]->users()->get(),
-'family' => $family[0],
-        ]);
+
+        return view('familyusers.index'); 
+//'familyUsers' => $family->users()->get(),
+//'family' => $family,
+        //]);
     }
 
     /**
@@ -44,23 +46,18 @@ public function index(Request $request)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $name = $request->input('name');
-        $password = $request->input('password');
-        $family = Family::where('name', '=', $name)->where('password', '=', $password)->get();
-        if (count($family) === 1) {
-            $familyMember = [
-                'family_id' => $family[0]->id,
-                'user_id' => auth()->user()->id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-            DB::table('family_users')->insert($familyMember);
-            return redirect(route('families.index'));
-        }else{
-            return back()->withInput()->withErrors('Family does not exist or password is incorrect');
-        }
+    public function store(StoreFamilyUserRequest $request)
+    {        
+                $validated = [
+            'family_id' => Family::where('name', '=', $request['name'])->firstOrFail()->id,
+            'user_id' => auth()->user()->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        
+        DB::table('family_users')->insert($validated);
+        return redirect(route('families.index'))->with('status', 'New Family Joined Successfully!');
     }
 
     /**
@@ -94,7 +91,8 @@ public function index(Request $request)
      */
     public function update(Request $request, FamilyUser $familyUser)
     {
-        //
+        DB::table('family_users')->insert($familyUser);
+        return view('families.index');
     }
 
     /**

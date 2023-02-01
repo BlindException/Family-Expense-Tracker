@@ -35,7 +35,7 @@
                 <form method="POST" action="{{ route('familyusers.destroy', [$familyuser, 'family' =>$family]) }}">
                     @csrf
                     @method('delete')
-                    <x-dropdown-link :href="route('families.destroy', [$familyuser, 'family' => $family])" onclick="event.preventDefault(); this.closest('form').submit();">
+                    <x-dropdown-link :href="route('familyusers.destroy', [$familyuser, 'family' => $family])" onclick="event.preventDefault(); this.closest('form').submit();">
                         {{ __('Remove from family') }}
                     </x-dropdown-link>
                 </form>

@@ -65,9 +65,11 @@ Route::resource('families', FamilyController::class)
 ->middleware(['auth', 'verified']);
 
 Route::resource('familyusers', FamilyUserController::class)
-->only(['index', 'create', 'store', 'destroy'])
+->only(['create', 'update', 'destroy'])
 ->middleware(['auth', 'verified']);
 
+Route::post('/familyusers', [FamilyUserController::class, 'store'])
+->middleware(['auth', 'verified', 'join', 'familypw'])->name('familyusers.store');
 
 Route::resource('transactions', TransactionController::class)
 ->only(['index', 'create', 'store', 'view', 'edit', 'update', 'show', 'destroy'])

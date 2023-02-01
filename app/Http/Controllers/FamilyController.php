@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Family;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\StoreFamilyRequest;
 use App\Http\Requests\UpdateFamilyRequest;
@@ -42,18 +43,17 @@ class FamilyController extends Controller
     {
         $user = auth()->user();
         $validated = $request->validated();
-        $validated['password'] = Crypt::encryptString($request->validated('password'));
+        $password = $validated['password'];
+        $validated['password'] = Hash::make($validated['password']);
                                                                                                     $user->createdFamilies()->create($validated);
-        $familyMember = [
-                        'family_id' => $user->latestCreatedFamily->id,
-                        'user_id' => $user->id,
+        $familyUser = [
+            'family_id' => $user->latestCreatedFamily()->firstOrFail()->id,
+            'user_id' => $user->id,
             'created_at' => now(),
             'updated_at' => now(),
         ];
-        DB::table('family_users')->insert($familyMember);
-        
+        DB::table('family_users')->insert($familyUser);
         return redirect(route('families.index'));
-    
         
     }
 
@@ -97,7 +97,7 @@ class FamilyController extends Controller
         $this->authorize('update', $family);
 
         $validated = $request->validated();
-        $validated['password'] = Crypt::encryptString($request->validated('password'));
+        $validated['password'] = Hash::make($validated['password']);
         $family->update($validated);
         return redirect(route('families.index'));
     }

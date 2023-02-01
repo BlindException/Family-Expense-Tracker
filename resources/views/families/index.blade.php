@@ -19,10 +19,10 @@
         {{ ($family->name) }}
     </td>
     <td>
-        {{ ($family->creator->name) }}
+        {{ ($family->password) }}
     </td>
     <td>
-        @if($family->creator->is(auth()->user()))
+        
         <x-dropdown>
             <x-slot name="trigger">
                 <button aria-label = "{{ ("More options for ".$family->name." family.") }}">
@@ -32,6 +32,7 @@
                                     </button>
             </x-slot>
             <x-slot name="content">
+                @if($family->creator->is(auth()->user()))
                 <x-dropdown-link :href="route('families.show', $family)">
                     {{ __('Details') }}
                 </x-dropdown-link>
@@ -45,10 +46,20 @@
                         {{ __('Delete') }}
                     </x-dropdown-link>
                 </form>
+                @endif
+                @if($family->users->contains(auth()->user())&&$family->creator!=auth()->user())
+                <form method="POST" action="{{ route('familyusers.destroy', ['familyuser'=>auth()->user(),'family' =>$family]) }}">
+                    @csrf
+                    @method('delete')
+                    <x-dropdown-link :href="route('familyusers.destroy', ['familyuser' => auth()->user(), 'family' => $family])" onclick="event.preventDefault(); this.closest('form').submit();">
+                        {{ __('Leave Family') }}
+                    </x-dropdown-link>
+                </form>
+                @endif
             </x-slot>
         </x-dropdown>
     </td>
-    @endif
+    
 </tr>
 @empty
 <tr>
