@@ -19,7 +19,7 @@
         {{ ($family->name) }}
     </td>
     <td>
-        {{ ($family->password) }}
+        {{ ($family->creator->name) }}
     </td>
     <td>
         
